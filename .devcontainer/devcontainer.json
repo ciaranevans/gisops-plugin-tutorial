@@ -6,5 +6,9 @@
 	"dockerFile": "Dockerfile",
 	"extensions": [
 		"ms-python.python"
-	]
+	],
+	"postCreateCommand": "python3 -m pip install -r .devcontainer/requirements.txt",
+	"containerEnv": {
+		"PYTHONPATH": "$PYTHONPATH:/QGIS/python:/QGIS/python/plugins"
+	}
 }

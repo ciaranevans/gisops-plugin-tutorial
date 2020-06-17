@@ -1,34 +1,62 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>QuickApiDialogBase</class>
- <widget class="QDialog" name="QuickApiDialogBase" >
-  <property name="geometry" >
+ <widget class="QDialog" name="QuickApiDialogBase">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>357</width>
+    <height>104</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Quick API</string>
   </property>
-  <widget class="QDialogButtonBox" name="button_box" >
-   <property name="geometry" >
-    <rect>
-     <x>30</x>
-     <y>240</y>
-     <width>341</width>
-     <height>32</height>
-    </rect>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>6</number>
    </property>
-   <property name="orientation" >
-    <enum>Qt::Horizontal</enum>
+   <property name="bottomMargin">
+    <number>9</number>
    </property>
-   <property name="standardButtons" >
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
+   <item>
+    <widget class="QgsFilterLineEdit" name="lineedit_xy">
+     <property name="placeholderText">
+      <string>Y, X (Lat, Lon)</string>
+     </property>
+     <property name="qgisRelation" stdset="0">
+      <string notr="true"/>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QgsProjectionSelectionWidget" name="crs_input"/>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="button_box">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QgsFilterLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qgsfilterlineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QgsProjectionSelectionWidget</class>
+   <extends>QWidget</extends>
+   <header>qgsprojectionselectionwidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -37,13 +65,13 @@
    <receiver>QuickApiDialogBase</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="source_label" >
-     <x>248</x>
-     <y>254</y>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
     </hint>
-    <hint type="destination_label" >
-     <x>157</x>
-     <y>274</y>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
     </hint>
    </hints>
   </connection>
@@ -53,13 +81,13 @@
    <receiver>QuickApiDialogBase</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="source_label" >
-     <x>316</x>
-     <y>260</y>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
     </hint>
-    <hint type="destination_label" >
-     <x>286</x>
-     <y>274</y>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
     </hint>
    </hints>
   </connection>

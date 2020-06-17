@@ -1,6 +1,5 @@
 #!/bin/bash
 
-xhost +
-docker build -t qgis-development:latest -f plugin_dev/Dockerfile .
+xhost +.
 docker run -it --rm --privileged --net=host --env="DISPLAY" -v $(pwd):/qgis-workspace \
-qgis-development:latest qgis
+qgis/qgis:release-3_10_focal designer
