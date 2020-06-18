@@ -1,10 +1,21 @@
 import os.path
 
+import requests
+
 from PyQt5.QtWidgets import QAction, QMessageBox
 
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsCoordinateReferenceSystem, QgsProject
+from qgis.core import (
+    QgsCoordinateReferenceSystem,
+    QgsCoordinateTransform,
+    QgsFeature,
+    QgsGeometry,
+    QgsPointXY,
+    QgsProject,
+    QgsRectangle,
+    QgsVectorLayer,
+)
 
 # Import the code for the dialog
 from .quick_api_dialog import QuickApiDialog
@@ -181,10 +192,67 @@ class QuickApi:
                 lineedit_yx = [
                     float(coord.strip()) for coord in lineedit_text.split(",")
                 ]
-            except:
+            except Exception:
                 QMessageBox.critical(
                     self.iface.mainWindow(),
                     "QuickAPI error",
                     "QuickAPI requires a comma seperated pair of numbers",
                 )
-                return
+            point = QgsPointXY(*reversed(lineedit_yx))
+            if crs_input.authid() != "EPSG:4326":
+                transform = QgsCoordinateTransform(crs_input, crs_out, project)
+                point_transform = transform.transform(point)
+                point = point_transform
+            user_agent = "PyQGIS@GIS-OPS.com"
+            base_url = "https://nominatim.openstreetmap.org/reverse"
+            params = {"lat": point.y(), "lon": point.x(), "format": "json"}
+            response = requests.get(
+                url=base_url, params=params, headers={"User-Agent": user_agent}
+            )
+            response_json = response.json()
+            print(response_json)
+            if response.status_code == 200:
+                if response_json.get("error"):
+                    QMessageBox.critical(
+                        self.iface.mainWindow(),
+                        "Quick API Error",
+                        "The request was not processed correctly",
+                    )
+            x = float(response_json["lon"])
+            y = float(response_json["lat"])
+            address = response_json["display_name"]
+            licence = response_json["licence"]
+            layer_out = QgsVectorLayer(
+                "Point?crs=EPSG:4326&field=address:string&field=licence:string",
+                "Nominatim Reverse Geocoding",
+                "memory",
+            )
+            point_out = QgsPointXY(x, y)
+            feature = QgsFeature()
+            feature.setGeometry(QgsGeometry.fromPointXY(point_out))
+            feature.setAttributes([address, licence])
+
+            layer_out.dataProvider().addFeature(feature)
+            layer_out.updateExtents()
+            project.addMapLayer(layer_out)
+
+            bbox = [float(coord) for coord in response_json["boundingbox"]]
+            min_y, max_y, min_x, max_x = bbox
+            bbox_geom = QgsGeometry.fromPolygonXY(
+                [
+                    [
+                        QgsPointXY(min_x, min_y),
+                        QgsPointXY(min_x, max_y),
+                        QgsPointXY(max_x, max_y),
+                        QgsPointXY(max_x, min_y),
+                    ]
+                ]
+            )
+
+            if project.crs().authid() != "EPSG:4326":
+                transform = QgsCoordinateTransform(crs_out, project.crs(), project)
+                bbox_geom.transform(transform)
+
+            self.iface.mapCanvas().zoomToFeatureExtent(
+                QgsRectangle.fromWkt(bbox_geom.asWkt())
+            )
